@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router';
 
+interface LoginResponse {
+  token: string;
+  user: {
+    id: number;
+    name: string;
+  };
+}
+
 const LogIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -54,18 +62,15 @@ const LogIn: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('https://neurastack.xyz/auth/login', {
+      const response = await axios.post<LoginResponse>('https://neurastack.xyz/auth/login', {
         email,
         password,
       }, {
         withCredentials: true,
       });
 
-      if (response.data.success) {
-        navigate('/dashboard');
-      } else {
-        setError('Invalid email or password');
-      }
+      localStorage.setItem("token",response.data.token);
+      navigate("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
